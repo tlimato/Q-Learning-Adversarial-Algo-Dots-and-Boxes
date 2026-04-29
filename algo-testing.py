@@ -8,6 +8,14 @@ V = GRID * DOTS # vertical line count
 N = H + V # total lines
 BOXES = GRID * GRID
 
+#----game colors----
+    # ANSI color codes
+RESET  = "\033[0m"
+BLUE   = "\033[94m"   # AI boxes
+RED    = "\033[91m"   # Human boxes
+YELLOW = "\033[93m"   # drawn lines
+GRAY   = "\033[90m"   # empty lines/dots
+
 def h_idx(r, c): return r * GRID + c
 def v_idx(r, c): return H + r * DOTS + c
 def box_edges(r, c): return [h_idx(r,c), h_idx(r+1,c), v_idx(r,c), v_idx(r,c+1)]
@@ -45,19 +53,43 @@ class DotsBoxes:
             g.turn = 1 - g.turn
         return g, scored
     
+
     def render(self):
         for r in range(GRID):
+            # top edge of each cell in this row
             row = ""
             for c in range(GRID):
-                row += "+" + ("---" if self.lines[h_idx(r, c)] else "   ")
-            print(row + "+")
+                if self.lines[h_idx(r, c)]:
+                    row += YELLOW + "+---" + RESET
+                else:
+                    row += GRAY + "+   " + RESET
+            print(row + GRAY + "+" + RESET)
+
+            # vertical edges and box contents
             for c in range(DOTS):
-                col = "|" if self.lines[v_idx(r, c)] else " "
-                box = self.boxes[r * GRID + c] if c < GRID else 0
-                col += " A " if box == 1 else " H " if box == -1 else "   "
-                print(col, end="")
+                if self.lines[v_idx(r, c)]:
+                    print(YELLOW + "|" + RESET, end="")
+                else:
+                    print(GRAY + " " + RESET, end="")
+
+                if c < GRID:
+                    box = self.boxes[r * GRID + c]
+                    if box == 1:
+                        print(BLUE + " A " + RESET, end="")
+                    elif box == -1:
+                        print(RED + " H " + RESET, end="")
+                    else:
+                        print("   ", end="")
             print()
-        print("+" + ("---+" * GRID))
+
+        # bottom edge of the board
+        bottom = ""
+        for c in range(GRID):
+            if self.lines[h_idx(GRID, c)]:
+                bottom += YELLOW + "+---" + RESET
+            else:
+                bottom += GRAY + "+   " + RESET
+        print(bottom + GRAY + "+" + RESET)
     
     def done(self): return len(self.legal()) == 0
     def score(self): return (self.boxes == 1).sum(), (self.boxes == -1).sum()
@@ -132,7 +164,11 @@ class QLearner:
                 m = self.best(g)
                 print(f"AI plays line {m}")
             else:
-                m = int(input("Your move (line index): "))
+                print("Enter move as: h <row> <col>  or  v <row> <col>")
+                print("  h = horizontal line,  v = vertical line")
+                parts = input("Your move: ").strip().split()
+                direction, r, c = parts[0], int(parts[1]), int(parts[2])
+                m = h_idx(r, c) if direction == "h" else v_idx(r, c)
             g, _ = g.step(m)
         a, b = g.score()
         print(f"Final — AI:{a}  Human:{b}")
