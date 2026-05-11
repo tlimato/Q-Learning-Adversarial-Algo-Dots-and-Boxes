@@ -1,12 +1,12 @@
 # Dots and Boxes — Adversarial Q-Learning
 
-Two tabular Q-learning agents trained purely through self-play on a 3×3 Dots and Boxes board. No hand-crafted heuristics — just the rules of the game, a Bellman update, and 100,000 episodes.
+Two tabular Q-learning agents trained purely through self-play on a 3×3 Dots and Boxes board. The rules of the game, a Bellman update, and 100,000 episodes.
 
 ---
 
 ## How It Works
 
-The agent keeps a Q-table $Q : \mathcal{S} \times \mathcal{A} \rightarrow \mathbb{R}$ — a lookup from every (state, action) pair to a score representing how good that move is. Each state $s_k$ captures the current board lines and whose turn it is.
+The agent keeps a Q-table $Q : \mathcal{S} \times \mathcal{A} \rightarrow \mathbb{R}$ and lookup from every (state, action) pair to a score representing how good that move is. Each state $s_k$ captures the current board lines and whose turn it is.
 
 ### Action Selection
 
@@ -16,7 +16,7 @@ $$\pi^*(s) = \arg\max_{m \in \mathcal{A}(s)} Q(s, m)$$
 
 ### Reward
 
-Each move earns a reward based on the box differential — boxes gained minus boxes given away:
+Each move earns a reward based on the box differential through boxes gained minus boxes given away:
 
 $$r_t = \Delta a_{\text{boxes}} - \Delta b_{\text{boxes}}$$
 
@@ -54,7 +54,7 @@ Three snapshots from training show the progression from pure random play to conv
 | 10,000 | ε at floor, Q-table plateauing near 900k entries, win rates just beginning to diverge |
 | 100,000 | Agents converge to stable strategies; emergent behaviors (chain avoidance, sacrifice moves) visible in play |
 
-> **Note on first-mover bias:** With a fixed turn order, Agent B consistently reached ~75% win rate — not because it was strategically superior, but because it learned to exploit Agent A's positional habits. Randomizing which agent moves first each episode eliminated this bias and produced genuinely symmetric learning.
+> **Note on first-mover bias:** With a fixed turn order, Agent B consistently reached ~75% win rate. This is not because it was strategically superior, but because it learned to exploit Agent A's positional habits. Randomizing which agent moves first each episode eliminated this bias and produced genuinely symmetric learning.
 
 ---
 
